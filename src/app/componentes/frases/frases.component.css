@@ -1,4 +1,4 @@
 .textareaMod{
     resize: none !important;
-
+    overflow: hidden;
 }

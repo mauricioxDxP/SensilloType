@@ -64,6 +64,18 @@ textoCopiar:string="";
 █▀█
 ▀░▀
 ░░░`;
+case "g":
+  return `░░░░
+█▀▀▀
+█░▀█
+▀▀▀▀
+░░░░`;
+case "b":
+  return `░░░
+█▀▄
+█▀█
+▀▀░
+░░░`;
         break;
         case "c":
           return `░░
@@ -71,6 +83,12 @@ textoCopiar:string="";
 █░
 ▀▀
 ░░`;
+case "d":
+  return `░░░
+█▀▄
+█░█
+▀▀░
+░░░`;
           break;
         case "f":
           return `░░░
@@ -113,8 +131,19 @@ textoCopiar:string="";
 █░█
 ░▀░
 ░░░`;
+case "w":
+  return `░░░░░
+█░█░█
+█░█░█
+░▀░▀░
+░░░░░`;
                   break;
-            
+                  case "h":
+                    return `░░░
+█░█
+█▀█
+▀░▀
+░░░`;
             case "i":
               return `░
 ▀
@@ -128,6 +157,18 @@ textoCopiar:string="";
 █░
 ▀▀
 ░░░`;
+case "j":
+  return `░░░░
+░░▀░
+▄░█░
+▀▀▀░
+░░░░`;
+case "k":
+  return `░░░░
+█░█░
+█▀▄░
+▀░░▀
+░░░░`;
 case "m":
   return `░░░░░
 █▄░▄█
@@ -158,14 +199,32 @@ case "o":
 █░█
 ▀▀▀
 ░░░`;
+case "q":
+  return `░░░░
+█▀█░
+▀▀█░
+░▀█▀
+░░░░`;
 
                 break;
+                case "x":
+return `░░░░░
+█░░░█
+░▀▄▀░
+▄▀░▀▄
+░░░░░`;
 case "y":
 return `░░░░░
 █▄░▄█
 ░▀█▀░
 ░▒▀░░
 ░░░░░`;
+case "z":
+  return `░░░░
+▀▀▀█
+░▄▀░
+▀▀▀▀
+░░░░`;
                 case " ":
                   return `░
 ░

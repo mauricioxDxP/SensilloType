@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ClipboardService } from 'ngx-clipboard';
 
 @Component({
   selector: 'app-frases',
@@ -7,49 +8,134 @@ import { Component, OnInit } from '@angular/core';
 })
 export class FrasesComponent implements OnInit {
 texto:string="fa";
-textoGenerado:Array<Letra>=new Array<Letra>();
+
+textoGenerado:Array<Linea>=new Array<Linea>();
 textoCopiar:string="";
+opcionSeleccionado="";
+
+selecOpciones:Array<string>=new Array<string>();
   constructor() { 
+    this.selecOpciones.push("f a s i l i to");
+    this.selecOpciones.push("c e n s i yo");
+    this.selecOpciones.push(`f a c i l i t o`);
+    this.selecOpciones.push("r e p  o r t   ");
+    this.opcionSeleccionado=this.selecOpciones[0];
   }
-
+capturar(){
+  this.texto=this.opcionSeleccionado;
+  this.algo();
+}
   ngOnInit(): void {
-    this.texto="a";
-    this.generar(this.texto);
-    this.generarTexto();
+    this.texto="f a s i l i to";
+    this.algo();
 
   }
-  algo(s:any)
+  copiar(elemento){
+    elemento.select();
+    document.execCommand('copy');
+    elemento.setSelectionRange(0, 0);
+  }
+
+  algo()
   {
     this.generar(this.texto);
+    this.rellenarBlancosLineas();
     this.generarTexto();
   }
+  letraEspacio(){
+    return "░░░░░░░░░░░░░░░░░░░░░░░░░"
+  }
   generarTexto(){
+    let tope=25;
+    let contTope=0;
     this.textoCopiar="";
-    for(let i=0;i<5;i++){
-      for(let j=0;j<this.textoGenerado.length;j++)
+    for(let k=0;k<this.textoGenerado.length;k++)
+    for(let i=0;i<this.textoGenerado[k].alto;i++){
+      for(let j=0;j<this.textoGenerado[k].letras.length;j++)
       {
-       this.textoCopiar+=this.textoGenerado[j].imp.substr(i*(this.textoGenerado[j].ancho),this.textoGenerado[j].ancho) 
-       console.log(this.textoGenerado[j].imp.substr(i*this.textoGenerado[j].ancho,this.textoGenerado[j].ancho) )
-       console.log(this.textoGenerado[j].ancho)
+        let ancho=this.textoGenerado[k].letras[j].ancho;
+       this.textoCopiar+=this.textoGenerado[k].letras[j].imp.substr(i*ancho,ancho) 
       }
       this.textoCopiar+="\n"
     }
   }
-  generar(text:string){
-    this.textoGenerado=new Array<Letra>();
-    for(let i=0;i<text.length;i++){
-      this.textoGenerado.push({
-        ancho:this.obtenerAncho(
-          this.generarLetra(
 
-            text.charAt(i))
-          ),
-        imp:this.generarLetra(
-          text.charAt(i)).replace(/(\r\n|\n|\r)/gm,"")
+SumarAnchos(linea:Linea){
+  let anchos=0;
+  for(let i=0;i<linea.letras.length;i++){
+    anchos+=linea.letras[i].ancho;
+  }
+  return anchos;
+
+}
+
+rellenarBlancosLineas(){
+  for(let k=0;k<this.textoGenerado.length;k++)
+  for(let i=0;i<this.textoGenerado[k].alto;i++)
+    {
+      let anchos=this.SumarAnchos(this.textoGenerado[k]);
+      if(anchos<25){
+        let anadir_izquierda=Math.floor((25-anchos)/2);
+        let anadir_derecha=anadir_izquierda + ((25-anchos) % 2);
+        
+        for(let j=0;j<anadir_izquierda;j++)
+        this.textoGenerado[k].letras.unshift({imp:"░░░",ancho:1});
+
+        for(let j=0;j<anadir_derecha;j++)
+        this.textoGenerado[k].letras.push({imp:"░░░",ancho:1});
       }
-      );
     }
-    console.log("generado",this.textoGenerado)
+    
+}
+  contarSaltos(text:string):number{
+    let n:number=0;
+    for(let i=0;i<text.length;i++)
+    {
+      if(text.charCodeAt(i)==10) n++;
+    }
+    return n;
+  }
+  altoTam(){
+    return this.contarSaltos(this.texto)*4+3;
+
+  }
+  generar(text:string){
+    this.textoGenerado=new Array<Linea>();
+    this.textoGenerado.push(new Linea());
+    let k=0;
+    for(let i=0;i<text.length;i++){
+      let letraGenerada="";
+      let letra=text.charAt(i);
+      let anchoLetra=0;
+      let altoLetra=0;
+      if(text.charCodeAt(i)!=10) 
+      {
+        letraGenerada=this.generarLetra(letra)
+        anchoLetra=this.obtenerAncho(letraGenerada);
+        altoLetra=this.contarSaltos(letraGenerada)+1;
+
+        letraGenerada=letraGenerada.replace(/(\r\n|\n|\r)/gm,"");
+        this.textoGenerado[k].alto=altoLetra;
+        this.textoGenerado[k].letras.push({
+          ancho:anchoLetra,
+          imp:letraGenerada});
+      }
+      else  
+      {
+        letraGenerada=this.letraEspacio();
+        anchoLetra=25;
+        this.textoGenerado.push(new Linea());
+        k++;
+        this.textoGenerado[k].alto=1;
+        this.textoGenerado[k].letras.push({
+          ancho:anchoLetra,
+          imp:letraGenerada});
+        
+        this.textoGenerado.push(new Linea());
+        k++;
+      }
+    }
+
   }
   mostrar(e,f){
 
@@ -59,178 +145,135 @@ textoCopiar:string="";
   generarLetra (letra:string):string{
     switch(letra){
       case "a":
-        return `░░░
+        return `█▀█
 █▀█
-█▀█
-▀░▀
-░░░`;
+▀░▀`;
 case "g":
-  return `░░░░
-█▀▀▀
+  return `█▀▀▀
 █░▀█
-▀▀▀▀
-░░░░`;
+▀▀▀▀`;
 case "b":
-  return `░░░
-█▀▄
+  return `█▀▄
 █▀█
-▀▀░
-░░░`;
+▀▀░`;
         break;
         case "c":
-          return `░░
-█▀
+          return `█▀
 █░
-▀▀
-░░`;
+▀▀`;
 case "d":
-  return `░░░
-█▀▄
+  return `█▀▄
 █░█
-▀▀░
-░░░`;
+▀▀░`;
           break;
         case "f":
-          return `░░░
-█▀▀
+          return `█▀▀
 █▀░
-▀░░
-░░░`;
+▀░░`;
           break;
           case "r":
-            return `░░░░
-█▀▀▄
+            return `█▀▀▄
 █▀▀█
-▀░░▀
-░░░░`;
+▀░░▀`;
             break;
           case "s":
-            return `░░░
-█▀▀
+            return `█▀▀
 ▀▀█
-▀▀▀
-░░░`;
+▀▀▀`;
             break;
             case "t":
-              return `░░░
-▀█▀
+              return `▀█▀
 ░█░
-░▀░
-░░░`;
+░▀░`;
               break;
               case "u":
-                return `░░░
+                return `█░█
 █░█
-█░█
-▀▀▀
-░░░`;
+▀▀▀`;
                 break;
                 case "v":
-                  return `░░░
+                  return `█░█
 █░█
-█░█
-░▀░
-░░░`;
+░▀░`;
 case "w":
-  return `░░░░░
+  return `█░█░█
 █░█░█
-█░█░█
-░▀░▀░
-░░░░░`;
+░▀░▀░`;
                   break;
                   case "h":
-                    return `░░░
-█░█
+                    return `█░█
 █▀█
-▀░▀
-░░░`;
+▀░▀`;
             case "i":
-              return `░
-▀
+              return `▀
 █
-▀
-░`;
+▀`;
               break;
               case "l":
-                return `░░
+                return `█░
 █░
-█░
-▀▀
-░░░`;
+▀▀`;
 case "j":
-  return `░░░░
-░░▀░
-▄░█░
-▀▀▀░
-░░░░`;
+  return `░░▀
+▄░█
+▀▀▀`;
 case "k":
-  return `░░░░
-█░█░
+  return `█░█░
 █▀▄░
-▀░░▀
-░░░░`;
+▀░░▀`;
 case "m":
-  return `░░░░░
-█▄░▄█
+  return `█▄░▄█
 █▀█▀█
-▀▒▒░▀
-░░░░░`;
+▀▒▒░▀`;
 case "n":
-  return `░░░░
-█▄░█
+  return `█▄░█
 █▀██
-▀▒▒▀
-░░░░`;
+▀▒▒▀`;
 case "p":
-  return `░░░
-█▀█
+  return `█▀█
 █▀▀
-▀░░
-░░░`;
+▀░░`;
 case "e":
-  return `░░
+  return `█▀
 █▀
-█▀
-▀▀
-░░`;
+▀▀`;
 case "o":
-  return `░░░
-█▀█
+  return `█▀█
 █░█
-▀▀▀
-░░░`;
+▀▀▀`;
 case "q":
-  return `░░░░
-█▀█░
+  return `█▀█░
 ▀▀█░
-░▀█▀
-░░░░`;
+░▀█▀`;
 
                 break;
                 case "x":
-return `░░░░░
-█░░░█
+return `█░░░█
 ░▀▄▀░
-▄▀░▀▄
-░░░░░`;
+▄▀░▀▄`;
 case "y":
-return `░░░░░
-█▄░▄█
+return `█▄░▄█
 ░▀█▀░
-░▒▀░░
-░░░░░`;
+░▒▀░░`;
 case "z":
-  return `░░░░
-▀▀▀█
+  return `▀▀▀█
 ░▄▀░
-▀▀▀▀
-░░░░`;
+▀▀▀▀`;
                 case " ":
                   return `░
 ░
-░
-░
 ░`;
+case "<":
+  return `░░▄▀
+░▀▄░
+░░░▀`;
+case ":":
+  return `▄
+░
+▀`;
+
+case "\r\n":
+  return `░░░░░░░░░░░░░░░░░░░░░░░░░`;
                   break;
     }
   }
@@ -246,4 +289,8 @@ case "z":
 export class Letra{
    imp:string;
    ancho:number;
+}
+export class Linea{
+  letras:Array<Letra>=new Array<Letra>();
+  alto:number;
 }
